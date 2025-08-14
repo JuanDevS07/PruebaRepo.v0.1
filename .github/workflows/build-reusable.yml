@@ -1,0 +1,26 @@
+name: build-reusable
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build artifact
+        run: echo "Hello SLSA" > output.txt
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "output.txt"
+
+
