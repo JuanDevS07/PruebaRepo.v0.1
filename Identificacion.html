@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JuanDevS✈️Pilot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Logo.jpeg" type="image/x-icon">
+    <!-- Si usas Google Fonts, agrégalas aquí -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body, .nft-card p, .nft-card a, .nft-card {
+            font-family: 'Rajdhani', 'Montserrat', Arial, sans-serif;
+            letter-spacing: 0.5px;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', 'Rajdhani', 'Montserrat', Arial, sans-serif;
+        }
+        .nav-title-bar {
+            background: linear-gradient(90deg, #8f00ff 0%, #1a0033 100%);
+            border-radius: 18px;
+            box-shadow: 0 2px 16px #8f00ff55;
+            padding: 18px 32px 12px 32px;
+            margin: 24px auto 24px auto;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-title-bar h1 {
+            color: #fff;
+            margin: 0 0 10px 0;
+            font-size: 2.1rem;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 12px #8f00ff99;
+        }
+        .nav-title-bar nav ul {
+            display: flex;
+            gap: 18px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-title-bar nav ul li a {
+            color: #fff;
+            background: #8f00ff;
+            padding: 7px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Rajdhani', 'Montserrat', Arial, sans-serif;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 8px #8f00ff55;
+        }
+        .nav-title-bar nav ul li a:hover, .nav-title-bar nav ul li a.active {
+            background: #fff;
+            color: #8f00ff;
+            box-shadow: 0 0 16px #8f00ff;
+        }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" loop style="display:none">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    <button id="play-music-btn" style="position:fixed;top:20px;right:20px;z-index:9999;display:none;padding:12px 20px;background:#8f00ff;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',Arial,sans-serif;font-weight:bold;box-shadow:0 0 8px #8f00ff;cursor:pointer;">
+        ▶️ Reproducir música
+    </button>
+    <div id="audio-error" style="color:#fff;background:#c00;padding:10px;display:none;position:fixed;bottom:20px;left:20px;z-index:9999;"></div>
+    <div id="error-analyzer" style="color:#fff;background:#222;padding:14px;display:none;position:fixed;bottom:60px;left:20px;z-index:9999;border-radius:8px;max-width:400px;font-size:0.98rem;"></div>
+    <script>
+    // Solución avanzada: música continua entre páginas
+    // Lista de canciones (agrega aquí todos los nombres de tus archivos de música)
+    const playlist = [
+        "Musica/(Julian Garcia) - KID MASSIVE - EDIT - 2021.mp3",
+        "Musica/[Esteban Oliveros] - PARTY HULK (MASHUP PERSONAL 2021).mp3",
+        "Musica/++++++Night For 2U (Juan Diez Mashup Pvt).mp3",
+        "Musica/++A++【Tropical House】Oliver Heldens X Shaun Frank - Shades Of Grey (Win & Woo X Kiso Remix).mp3",
+        "Musica/001 Andres Herrera - INTRO ELEMENTS VOCALMIX ( mashup personal 2021).mp3",
+        "Musica/- Duke Dumont  Red LightGreen Light Original DVJ EVER video Edit (1).mp3",
+        "Musica/- Duke Dumont  Red LightGreen Light Original DVJ EVER video Edit.mp3",
+        "Musica/#4 Break My Heart (Andres Galvis Tribe Remix) - Dua Lipa.mp3"
+    ];
+
+    let currentTrack = parseInt(localStorage.getItem('musicTrack') || "0", 10);
+    const audio = document.getElementById('bg-music');
+    audio.src = playlist[currentTrack];
+
+    // Guarda el track actual en localStorage
+    function saveTrackIndex() {
+        localStorage.setItem('musicTrack', currentTrack);
+    }
+
+    // Al terminar una canción, pasa a la siguiente
+    audio.addEventListener('ended', () => {
+        currentTrack = (currentTrack + 1) % playlist.length;
+        audio.src = playlist[currentTrack];
+        saveTrackIndex();
+        audio.currentTime = 0;
+        audio.play().catch(() => {
+            playBtn.style.display = 'block';
+        });
+    });
+
+    // Si el usuario cambia de página, guarda el track y el tiempo
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('musicTime', audio.currentTime);
+        localStorage.setItem('musicState', audio.paused ? 'paused' : 'playing');
+        saveTrackIndex();
+    });
+
+    // Al cargar la página, recupera el tiempo y el track
+    const savedTime = localStorage.getItem('musicTime');
+    if (savedTime) audio.currentTime = parseFloat(savedTime);
+
+    // Opcional: control de play/pausa con click (puedes personalizar)
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            if (audio.paused) {
+                audio.play();
+                localStorage.setItem('musicState', 'playing');
+            } else {
+                audio.pause();
+                localStorage.setItem('musicState', 'paused');
+            }
+        }
+    });
+
+    // Intenta reproducir automáticamente
+    function tryPlay() {
+        audio.src = playlist[currentTrack];
+        audio.play().then(() => {
+            playBtn.style.display = 'none';
+        }).catch(() => {
+            playBtn.style.display = 'block';
+        });
+    }
+
+    // Primer intento
+    tryPlay();
+
+    // Si el usuario hace clic en cualquier parte, intenta de nuevo
+    document.addEventListener('click', tryPlay, { once: true });
+
+    // Si el usuario pulsa el botón, intenta reproducir
+    playBtn.addEventListener('click', tryPlay);
+
+    // Pausa la música cuando la ventana o pestaña pierda el foco o el usuario cambia de web
+    function handleVisibility() {
+        if (document.hidden || document.visibilityState !== "visible") {
+            audio.pause();
+            localStorage.setItem('musicState', 'paused');
+        }
+        // No reanudar automáticamente al volver al foco
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('blur', handleVisibility);
+
+    // Pausa la música si el usuario navega fuera de tu dominio (por ejemplo, hace click en un enlace externo)
+    window.addEventListener('pagehide', () => {
+        audio.pause();
+        localStorage.setItem('musicState', 'paused');
+    });
+
+    // Analizador de errores reutilizable
+    function showErrorAnalyzer(type, src, extra) {
+        const analyzer = document.getElementById('error-analyzer');
+        let msg = `<b>Analizador de errores (${type})</b><br>`;
+        msg += `<b>Archivo:</b> <code>${src}</code><br>`;
+        if (extra) msg += `<b>Detalles:</b> ${extra}<br>`;
+        msg += `<b>Posibles causas:</b><ul>`;
+        msg += `<li>El archivo no existe en la ruta indicada.</li>`;
+        msg += `<li>El nombre del archivo tiene mayúsculas, espacios o caracteres especiales.</li>`;
+        msg += `<li>La extensión del archivo no es compatible o está mal escrita.</li>`;
+        msg += `<li>El archivo no está en la carpeta correcta (debe estar en <code>Musica/</code> o la ruta indicada).</li>`;
+        msg += `<li>El servidor web no tiene permisos para acceder al archivo.</li>`;
+        msg += `</ul>`;
+        msg += `<b>Soluciones sugeridas:</b><ul>`;
+        msg += `<li>Verifica que el archivo esté en la carpeta correcta y que el nombre coincida exactamente (incluyendo mayúsculas/minúsculas).</li>`;
+        msg += `<li>Evita espacios y caracteres especiales en el nombre del archivo. Usa nombres simples, por ejemplo: <code>break_my_heart.mp3</code></li>`;
+        msg += `<li>Prueba abrir el archivo directamente en el navegador para comprobar la ruta.</li>`;
+        msg += `<li>Revisa la consola del navegador para más detalles técnicos.</li>`;
+        msg += `</ul>`;
+        analyzer.innerHTML = msg;
+        analyzer.style.display = 'block';
+    }
+
+    // Analiza errores de audio
+    audio.onerror = function() {
+        document.getElementById('audio-error').textContent = "No se pudo cargar el archivo de música. Verifica la ruta y el nombre del archivo.";
+        document.getElementById('audio-error').style.display = 'block';
+        showErrorAnalyzer('audio', audio.src);
+    };
+
+    // Analiza errores de imágenes (puedes usarlo en cualquier <img>)
+    document.querySelectorAll('img').forEach(img => {
+        img.onerror = function() {
+            showErrorAnalyzer('imagen', img.src);
+        };
+    });
+
+    // --- MÚSICA CONTINUA ENTRE PÁGINAS: LIMITACIÓN ---
+    // El audio HTML se reinicia al navegar entre páginas porque cada carga de página destruye el elemento <audio>.
+    // Para lograr música realmente continua entre páginas necesitas una SPA (Single Page Application) o usar un popup/ventana flotante.
+    // En sitios estáticos tradicionales, solo puedes guardar el tiempo y estado en localStorage y reanudarlo al cargar la nueva página (como ya tienes implementado).
+
+    // --- RECOMENDACIÓN ---
+    // Asegúrate de tener el mismo bloque <audio> y <script> en TODAS tus páginas (por ejemplo, en index.html, Identificacion.html, etc.)
+    // Así, al cambiar de página, la música se reanudará automáticamente desde el punto anterior, pero habrá un pequeño corte/reinicio inevitable.
+
+    // --- OPCIONAL: MENSAJE AL USUARIO ---
+    // Puedes mostrar un mensaje breve al usuario si quieres explicar este comportamiento:
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (performance.navigation.type === 1) { // recarga o navegación
+            setTimeout(() => {
+                if (audio.currentTime > 0 && audio.paused) {
+                    alert('La música se reanudará desde el punto anterior. Si no suena, haz clic en "Reproducir música".');
+                }
+            }, 1000);
+        }
+    });
+    </script>
+    <div class="main-container">
+        <div class="nav-title-bar">
+            <h1>Identificación de Sistema</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="Productos.html">Liquidez</a></li>
+                    <li><a href="Pasarela.html">Pasarela de Pago</a></li>
+                    <li><a href="Contacto.html">Contacto</a></li>
+                    <li><a href="Identificacion.html" class="active">Nosotros</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <section id="identificacion-sistema" class="identificacion-section">
+            <h2 class="identificacion-title">
+                🔎 Identificación de Sistema
+            </h2>
+            <p class="identificacion-desc">
+                Nuestro ecosistema está diseñado para integrar tres pilares fundamentales del entorno digital actual: 
+                <strong>comercio de activos digitales</strong>, 
+                <strong>desarrollo tecnológico</strong> 
+                y 
+                <strong>apoyo estratégico en blockchain</strong>.
+            </p>
+
+            <div class="identificacion-cards">
+                <div class="identificacion-card">
+                    <h3>🧠 Análisis y Asesoría Criptográfica</h3>
+                    <p>
+                        Nos dedicamos al estudio, análisis e inversión en proyectos criptográficos emergentes. Brindamos asesoría personalizada para apoyar iniciativas Web3, con enfoque técnico y estratégico.
+                    </p>
+                </div>
+                <div class="identificacion-card">
+                    <h3>🛒 Comercialización de Códigos Digitales</h3>
+                    <p>
+                        Ofrecemos productos digitales como <strong>códigos de apps y contenido gaming</strong>, incluyendo paquetes de microtransacciones (por ejemplo, RP de League of Legends). Operamos de forma ágil y segura mediante plataformas como <strong>Telegram</strong>.
+                    </p>
+                </div>
+                <div class="identificacion-card">
+                    <h3>🧩 Desarrollo de Soluciones Tecnológicas</h3>
+                    <ul>
+                        <li>✔️ Software a medida</li>
+                        <li>✔️ Aplicaciones móviles</li>
+                        <li>✔️ DApps (aplicaciones descentralizadas)</li>
+                        <li>✔️ Sitios web funcionales y escalables</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="identificacion-footer">
+                Nuestro sistema combina <strong>tecnología</strong>, <strong>comercio</strong> y <strong>comunidad</strong> para ofrecer soluciones innovadoras que se adaptan a las necesidades del entorno digital moderno.
+            </p>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 JuanDevS✈️Pilot. Todos Los Derechos Reservados.</p>
+        </footer>
+    </div>
+</body>
+</html>

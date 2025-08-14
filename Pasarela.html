@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JuanDevS✈️Pilot - BNBCHAIN</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="Logo.jpeg" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body, .nft-card p, .nft-card a, .nft-card {
+            font-family: 'Rajdhani', 'Montserrat', Arial, sans-serif;
+            letter-spacing: 0.5px;
+        }
+        h1, h2, h3 {
+            font-family: 'Orbitron', 'Rajdhani', 'Montserrat', Arial, sans-serif;
+        }
+        .nav-title-bar {
+            background: linear-gradient(90deg, #8f00ff 0%, #1a0033 100%);
+            border-radius: 18px;
+            box-shadow: 0 2px 16px #8f00ff55;
+            padding: 18px 32px 12px 32px;
+            margin: 24px auto 24px auto;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-title-bar h1 {
+            color: #fff;
+            margin: 0 0 10px 0;
+            font-size: 2.1rem;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 12px #8f00ff99;
+        }
+        .nav-title-bar nav ul {
+            display: flex;
+            gap: 18px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-title-bar nav ul li a {
+            color: #fff;
+            background: #8f00ff;
+            padding: 7px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Rajdhani', 'Montserrat', Arial, sans-serif;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 8px #8f00ff55;
+        }
+        .nav-title-bar nav ul li a:hover, .nav-title-bar nav ul li a.active {
+            background: #fff;
+            color: #8f00ff;
+            box-shadow: 0 0 16px #8f00ff;
+        }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" src="Musica/(Julian Garcia) - KID MASSIVE - EDIT - 2021.mp3" loop style="display:none">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+    <button id="play-music-btn" style="position:fixed;top:20px;right:20px;z-index:9999;display:none;padding:12px 20px;background:#8f00ff;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',Arial,sans-serif;font-weight:bold;box-shadow:0 0 8px #8f00ff;cursor:pointer;">
+        ▶️ Reproducir música
+    </button>
+    <div id="audio-error" style="color:#fff;background:#c00;padding:10px;display:none;position:fixed;bottom:20px;left:20px;z-index:9999;"></div>
+    <div id="error-analyzer" style="color:#fff;background:#222;padding:14px;display:none;position:fixed;bottom:60px;left:20px;z-index:9999;border-radius:8px;max-width:400px;font-size:0.98rem;"></div>
+    <script>
+    // Solución avanzada: música continua entre páginas
+    const audio = document.getElementById('bg-music');
+    const playBtn = document.getElementById('play-music-btn');
+    // Recupera el tiempo y estado de reproducción
+    const savedTime = localStorage.getItem('musicTime');
+    const savedState = localStorage.getItem('musicState');
+
+    if (savedTime) audio.currentTime = parseFloat(savedTime);
+    if (savedState !== 'paused') {
+        // Autoplay puede requerir interacción del usuario en algunos navegadores
+        audio.play().catch(() => {});
+    }
+
+    // Guarda el tiempo y estado antes de salir de la página
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('musicTime', audio.currentTime);
+        localStorage.setItem('musicState', audio.paused ? 'paused' : 'playing');
+    });
+
+    // Opcional: control de play/pausa con click (puedes personalizar)
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            if (audio.paused) {
+                audio.play();
+                localStorage.setItem('musicState', 'playing');
+            } else {
+                audio.pause();
+                localStorage.setItem('musicState', 'paused');
+            }
+        }
+    });
+
+    // Intenta reproducir automáticamente
+    function tryPlay() {
+        audio.play().then(() => {
+            playBtn.style.display = 'none';
+        }).catch(() => {
+            playBtn.style.display = 'block';
+        });
+    }
+
+    // Primer intento
+    tryPlay();
+
+    // Si el usuario hace clic en cualquier parte, intenta de nuevo
+    document.addEventListener('click', tryPlay, { once: true });
+
+    // Si el usuario pulsa el botón, intenta reproducir
+    playBtn.addEventListener('click', tryPlay);
+
+    // Pausa la música cuando la ventana o pestaña pierda el foco (no la reanuda automáticamente)
+    function handleVisibility() {
+        if (document.hidden || document.visibilityState !== "visible") {
+            audio.pause();
+            localStorage.setItem('musicState', 'paused');
+        }
+        // No reanudar automáticamente al volver al foco
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('blur', handleVisibility);
+
+    // Pausa la música si el usuario navega fuera de tu dominio (por ejemplo, hace click en un enlace externo o cierra la pestaña)
+    window.addEventListener('pagehide', () => {
+        audio.pause();
+        localStorage.setItem('musicState', 'paused');
+    });
+
+    // Analizador de errores reutilizable
+    function showErrorAnalyzer(type, src, extra) {
+        const analyzer = document.getElementById('error-analyzer');
+        let msg = `<b>Analizador de errores (${type})</b><br>`;
+        msg += `<b>Archivo:</b> <code>${src}</code><br>`;
+        if (extra) msg += `<b>Detalles:</b> ${extra}<br>`;
+        msg += `<b>Posibles causas:</b><ul>`;
+        msg += `<li>El archivo no existe en la ruta indicada.</li>`;
+        msg += `<li>El nombre del archivo tiene mayúsculas, espacios o caracteres especiales.</li>`;
+        msg += `<li>La extensión del archivo no es compatible o está mal escrita.</li>`;
+        msg += `<li>El archivo no está en la carpeta correcta (debe estar en <code>Musica/</code> o la ruta indicada).</li>`;
+        msg += `<li>El servidor web no tiene permisos para acceder al archivo.</li>`;
+        msg += `</ul>`;
+        msg += `<b>Soluciones sugeridas:</b><ul>`;
+        msg += `<li>Verifica que el archivo esté en la carpeta correcta y que el nombre coincida exactamente (incluyendo mayúsculas/minúsculas).</li>`;
+        msg += `<li>Evita espacios y caracteres especiales en el nombre del archivo. Usa nombres simples, por ejemplo: <code>break_my_heart.mp3</code></li>`;
+        msg += `<li>Prueba abrir el archivo directamente en el navegador para comprobar la ruta.</li>`;
+        msg += `<li>Revisa la consola del navegador para más detalles técnicos.</li>`;
+        msg += `</ul>`;
+        analyzer.innerHTML = msg;
+        analyzer.style.display = 'block';
+    }
+
+    // Analiza errores de audio
+    audio.onerror = function() {
+        document.getElementById('audio-error').textContent = "No se pudo cargar el archivo de música. Verifica la ruta y el nombre del archivo.";
+        document.getElementById('audio-error').style.display = 'block';
+        showErrorAnalyzer('audio', audio.src);
+    };
+
+    // Analiza errores de imágenes (puedes usarlo en cualquier <img>)
+    document.querySelectorAll('img').forEach(img => {
+        img.onerror = function() {
+            showErrorAnalyzer('imagen', img.src);
+        };
+    });
+
+    // Puedes reutilizar showErrorAnalyzer para otros recursos (video, scripts, etc.)
+    </script>
+    <div class="main-container">
+        <div class="nav-title-bar">
+            <h1>Pasarela de Pagos USDT - BNB Chain</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="Productos.html">Liquidez</a></li>
+                    <li><a href="Pasarela.html" class="active">Pasarela de Pago</a></li>
+                    <li><a href="Contacto.html">Contacto</a></li>
+                    <li><a href="Identificacion.html">Nosotros</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <section id="wallet-section" style="padding: 32px 24px;">
+            <h2 style="font-family:'Orbitron',sans-serif;color:#8f00ff;text-align:center;text-shadow:0 2px 8px #8f00ff;">Recibe Pagos en USDT (BEP20)</h2>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:24px;margin-top:32px;">
+                <div style="background:#1a0033;padding:24px 32px;border-radius:16px;box-shadow:0 0 16px #8f00ff44;max-width:400px;width:100%;text-align:center;">
+                    <img src="wallet-qr.png" alt="QR Wallet USDT" style="width:180px;height:180px;border-radius:12px;border:2px solid #8f00ff;box-shadow:0 0 12px #8f00ff88;background:#000;margin-bottom:18px;">
+                    <p style="color:#fff;font-size:1.1rem;margin-bottom:10px;">Dirección de tu billetera USDT (BEP20):</p>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+                        <input id="wallet-address" type="text" value="0xcf291c5bdf3ee495393f22277f8a45811963c0ba" readonly style="width:270px;padding:8px 12px;border-radius:8px;border:1px solid #8f00ff;background:#111;color:#fff;font-family:'Montserrat',sans-serif;font-size:1rem;">
+                        <button id="copy-btn" style="background:#8f00ff;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;box-shadow:0 0 8px #8f00ff;">Copiar</button>
+                    </div>
+                    <div style="margin-top:18px;">
+                        <a id="bscscan-link" href="https://bscscan.com/address/0xcf291c5bdf3ee495393f22277f8a45811963c0ba" target="_blank" style="color:#8f00ff;font-weight:bold;text-decoration:none;">Ver en BscScan</a>
+                    </div>
+                </div>
+                <div style="color:#fff;max-width:500px;text-align:center;">
+                    <p>Envía cualquier cantidad de <b>USDT (BEP20)</b> a la dirección mostrada arriba.<br>
+                    <span style="color:#8f00ff;">La red debe ser Binance Smart Chain (BNB Chain).</span></p>
+                    <p>Una vez realizado el pago, envía el comprobante a nuestro contacto para validar tu transacción.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 JuanDevS✈️Pilot. Todos Los Derechos Reservados.</p>
+        </footer>
+    </div>
+    <script>
+    // Copiar dirección al portapapeles
+    document.getElementById('copy-btn').onclick = function() {
+        const input = document.getElementById('wallet-address');
+        input.select();
+        input.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        this.textContent = '¡Copiado!';
+        setTimeout(() => { this.textContent = 'Copiar'; }, 1500);
+    };
+    </script>
+</body>
+</html>
